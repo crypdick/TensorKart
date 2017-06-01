@@ -1,24 +1,19 @@
 #!/usr/bin/env python
 
 from utils import resize_image, XboxController
-import tensorflow as tf
-import model
 from termcolor import cprint
 import gym
 import gym_mupen64plus
-
+from train import create_model
+import numpy as np
 
 # Play
 class Actor(object):
 
     def __init__(self):
-        # Start session
-        self.sess = tf.InteractiveSession()
-        self.sess.run(tf.global_variables_initializer())
-
-        # Load Model
-        saver = tf.train.Saver()
-        saver.restore(self.sess, "./model.ckpt")
+        # Load in model from train.py and load in the trained weights
+        self.model = create_model(keep_prob=1) # no dropout
+        self.model.load_weights('model_weights.h5')
 
         # Init contoller for manual override
         self.real_controller = XboxController()
@@ -29,13 +24,11 @@ class Actor(object):
         manual_override = self.real_controller.LeftBumper == 1
 
         if not manual_override:
-
             ## Look
             vec = resize_image(obs)
-
+            vec = np.expand_dims(vec, axis=0) # expand dimensions for predict, it wants (1,66,200,3) not (66, 200, 3)
             ## Think
-            joystick = \
-              model.y.eval(session=self.sess, feed_dict={model.x: [vec], model.keep_prob: 1.0})[0]
+            joystick = self.model.predict(vec, batch_size=1)[0]
 
         else:
             joystick = self.real_controller.read()
@@ -63,8 +56,8 @@ class Actor(object):
 
 
 if __name__ == '__main__':
+    env = gym.make('Mario-Kart-Royal-Raceway-v0')
 
-    env = gym.make('Mario-Kart-Luigi-Raceway-v0')
     obs = env.reset()
     env.render()
     print('env ready!')
@@ -89,4 +82,3 @@ if __name__ == '__main__':
     input('press <ENTER> to quit')
 
     env.close()
-
