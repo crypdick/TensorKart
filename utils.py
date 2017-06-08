@@ -40,7 +40,8 @@ class Sample:
 
 class XboxController(object):
     MAX_TRIG_VAL = math.pow(2, 8)
-    MAX_JOY_VAL = math.pow(2, 15)
+    MAX_JOY_VAL = 255.0
+    # MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self):
 
@@ -56,6 +57,7 @@ class XboxController(object):
         self.X = 0
         self.Y = 0
         self.B = 0
+        self.Z = 0
         self.LeftThumb = 0
         self.RightThumb = 0
         self.Back = 0
@@ -74,9 +76,10 @@ class XboxController(object):
         x = self.LeftJoystickX
         y = self.LeftJoystickY
         a = self.A
-        b = self.X # b=1, x=2
-        rb = self.RightBumper
-        return [x, y, a, b, rb]
+        b = self.B
+        z = self.Z
+        #rb = self.RightBumper
+        return [x, y, a, b, z]  # removed right bumper for now
 
 
     def _monitor_controller(self):
@@ -84,45 +87,52 @@ class XboxController(object):
             events = get_gamepad()
             for event in events:
                 if event.code == 'ABS_Y':
-                    self.LeftJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
+                    self.LeftJoystickY = (2.* event.state / XboxController.MAX_JOY_VAL) - 1. # normalize and recenter between -1 and 1
+                    # print("y", self.LeftJoystickY)
                 elif event.code == 'ABS_X':
-                    self.LeftJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RY':
+                    self.LeftJoystickX = (2.* event.state / XboxController.MAX_JOY_VAL) - 1. # normalize between -1 and 1
+                    # print("x", self.LeftJoystickX)
+                elif event.code == 'ABS_Z':  #ABS_RY':
                     self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RX':
+                elif event.code == 'ABS_RZ':  #'ABS_RX'
                     self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_Z':
-                    self.LeftTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
-                elif event.code == 'ABS_RZ':
-                    self.RightTrigger = event.state / XboxController.MAX_TRIG_VAL # normalize between 0 and 1
-                elif event.code == 'BTN_TL':
-                    self.LeftBumper = event.state
-                elif event.code == 'BTN_TR':
+                elif event.code == 'BTN_TOP2':#'ABS_Z':
+                    pass
+                elif event.code == 'BTN_PINKIE':#'ABS_RZ':
                     self.RightBumper = event.state
-                elif event.code == 'BTN_SOUTH':
+                    print("rb", event.state)
+                elif event.code == 'BTN_BASE':#'BTN_TL':
+                    self.Z = event.state
+                    # print("Z", event.state)
+                elif event.code == 'BTN_BASE2':
+                    self.RightTrigger = event.state / XboxController.MAX_TRIG_VAL  # normalize between 0 and 1
+                elif event.code == 'BTN_THUMB':
                     self.A = event.state
-                elif event.code == 'BTN_NORTH':
-                    self.X = event.state
-                elif event.code == 'BTN_WEST':
+                    # print("A", event.state)
+                elif event.code == 'BTN_TOP':
                     self.Y = event.state
-                elif event.code == 'BTN_EAST':
-                    self.B = event.state
-                elif event.code == 'BTN_THUMBL':
+                elif event.code == 'BTN_TRIGGER':
                     self.LeftThumb = event.state
-                elif event.code == 'BTN_THUMBR':
+                elif event.code == 'BTN_THUMB2':
+                    # print(event.state)
+                    self.B = event.state
+                    # print("B", event.state)
+                elif event.code == 'BTN_THUMBL':  #thumb l
+                    self.LeftThumb = event.state
+                elif event.code == 'BTN_BASE5':  # thumb r
                     self.RightThumb = event.state
-                elif event.code == 'BTN_SELECT':
+                elif event.code == 'BTN_BASE6':  #select
                     self.Back = event.state
-                elif event.code == 'BTN_START':
+                elif event.code == 'BTN_BASE4':  #start
                     self.Start = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY1':
-                    self.LeftDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY2':
-                    self.RightDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY3':
-                    self.UpDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY4':
-                    self.DownDPad = event.state
+                elif event.code == 'ABS_HAT0X':
+                    self.LeftDPad = event.state / XboxController.MAX_JOY_VAL # normalize
+                #elif event.code == 'ABS_HAT0X':
+                 #   self.RightDPad = event.state / XboxController.MAX_JOY_VAL # normalize
+                elif event.code == 'ABS_HAT0Y':
+                    self.UpDPad = event.state / XboxController.MAX_JOY_VAL # normalize
+                #elif event.code == 'BTN_TRIGGER_HAPPY4':
+                 #   self.DownDPad = event.state
 
 
 class Data(object):
