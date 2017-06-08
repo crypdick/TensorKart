@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-import array
 
 import numpy as np
 
-from skimage.color import rgb2gray
 from skimage.transform import resize
 from skimage.io import imread
 
