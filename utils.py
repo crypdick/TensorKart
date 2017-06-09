@@ -76,8 +76,8 @@ class XboxController(object):
         a = self.A
         b = self.B
         z = self.Z
-        #rb = self.RightBumper
-        return [x, y, a, b, z]  # removed right bumper for now
+        rb = self.RightBumper
+        return [x, y, a, b, z, rb]
 
 
     def _monitor_controller(self):
@@ -98,7 +98,7 @@ class XboxController(object):
                     pass
                 elif event.code == 'BTN_PINKIE':#'ABS_RZ':
                     self.RightBumper = event.state
-                    print("rb", event.state)
+                    # print("rb", event.state)
                 elif event.code == 'BTN_BASE':#'BTN_TL':
                     self.Z = event.state
                     # print("Z", event.state)
