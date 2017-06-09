@@ -26,7 +26,7 @@ def customized_loss(y_true, y_pred, loss='euclidean'):
 
 
 def create_model(keep_prob = 0.8):
-    """NVIDIA's smartcar model. 5 convolutional layers, 5 dense layers with
+    """NVIDIA's smartcar model. 5 convolutional layers, 1 flatten, 5 dense layers with
     alternating with dropout layers"""
     model = Sequential()
 
