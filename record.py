@@ -12,8 +12,9 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
 from utils import Screenshot, XboxController
 
-IDLE_SAMPLE_RATE = 1500
-SAMPLE_RATE = 200
+# timestep len in ms. smaller is faster
+IDLE_SAMPLE_RATE = 1000
+SAMPLE_RATE = 10
 
 class MainWindow(wx.Frame):
     """ Main frame of the application
@@ -81,7 +82,7 @@ class MainWindow(wx.Frame):
 
     def init_plot(self):
         self.plotMem = 50 # how much data to keep on the plot
-        self.plotData = [[0] * (5)] * self.plotMem # mem storage for plot
+        self.plotData = [[0] * (6)] * self.plotMem # mem storage for plot
 
         self.fig = Figure((4,3))
         self.axes = self.fig.add_subplot(111)
@@ -137,12 +138,15 @@ class MainWindow(wx.Frame):
 
         # Joystick
         x = np.asarray(self.plotData)
+        # print(len(x[]))
+        # x = x[:,5]
         self.axes.plot(range(0,self.plotMem), x[:,0], 'r')
         self.axes.hold(True)
         self.axes.plot(range(0,self.plotMem), x[:,1], 'b')
         self.axes.plot(range(0,self.plotMem), x[:,2], 'g')
         self.axes.plot(range(0,self.plotMem), x[:,3], 'k')
         self.axes.plot(range(0,self.plotMem), x[:,4], 'y')
+        # self.axes.plot(range(0, self.plotMem), x[:, 5], 'purple')
         self.axes.hold(False)
         self.PlotCanvas.draw()
 
@@ -200,14 +204,13 @@ class MainWindow(wx.Frame):
                     os.mkdir(self.outputDir)
 
                 # do not overwrite the data
-                else: # result == False
+                else:  # result == False
                     self.recording = False
                     self.txt_outputDir.SetFocus()
 
             # no directory so make one
             else:
                 os.mkdir(self.outputDir)
-
 
     def on_exit(self, event):
         self.Destroy()
