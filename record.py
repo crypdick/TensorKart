@@ -23,7 +23,7 @@ class MainWindow(wx.Frame):
 
 
     def __init__(self):
-        wx.Frame.__init__(self, None, title=self.title, size=(660,330))
+        wx.Frame.__init__(self, None, title=self.title, size=(660, 330))
 
         # Init controller
         self.controller = XboxController()
@@ -57,7 +57,7 @@ class MainWindow(wx.Frame):
         self.PlotCanvas = FigCanvas(self.joy_panel, wx.ID_ANY, self.fig)
 
         # Recording
-        self.txt_outputDir = wx.TextCtrl(self.record_panel, wx.ID_ANY, pos=(5,0), size=(320,30))
+        self.txt_outputDir = wx.TextCtrl(self.record_panel, wx.ID_ANY, pos=(5, 0), size=(320, 30))
         uid = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
         self.txt_outputDir.ChangeValue("samples/" + uid)
 
@@ -79,20 +79,18 @@ class MainWindow(wx.Frame):
         self.SetSizer(mainSizer_v)
         self.Layout()
 
-
     def init_plot(self):
-        self.plotMem = 50 # how much data to keep on the plot
-        self.plotData = [[0] * (6)] * self.plotMem # mem storage for plot
+        self.plotMem = 50  # how much data to keep on the plot
+        self.plotData = [[0] * 6] * self.plotMem # mem storage for plot
 
-        self.fig = Figure((4,3))
+        self.fig = Figure((4, 3))
         self.axes = self.fig.add_subplot(111)
-
 
     def on_timer(self, event):
         self.poll()
 
         # stop drawing if recording to avoid slow downs
-        if self.recording == False:
+        if not self.recording:
             self.draw()
 
 
@@ -124,11 +122,10 @@ class MainWindow(wx.Frame):
         outfile = open(self.outputDir+'/'+'data.csv', 'a')
 
         # write line
-        outfile.write( image_file + ',' + ','.join(map(str, self.controller_data)) + '\n' )
+        outfile.write(image_file + ',' + ','.join(map(str, self.controller_data)) + '\n')
         outfile.close()
 
         self.t += 1
-
 
     def draw(self):
         # Image
@@ -138,15 +135,13 @@ class MainWindow(wx.Frame):
 
         # Joystick
         x = np.asarray(self.plotData)
-        # print(len(x[]))
-        # x = x[:,5]
         self.axes.plot(range(0,self.plotMem), x[:,0], 'r')
         self.axes.hold(True)
         self.axes.plot(range(0,self.plotMem), x[:,1], 'b')
         self.axes.plot(range(0,self.plotMem), x[:,2], 'g')
         self.axes.plot(range(0,self.plotMem), x[:,3], 'k')
         self.axes.plot(range(0,self.plotMem), x[:,4], 'y')
-        # self.axes.plot(range(0, self.plotMem), x[:, 5], 'purple')
+        self.axes.plot(range(0, self.plotMem), x[:, 5], 'purple')
         self.axes.hold(False)
         self.PlotCanvas.draw()
 
