@@ -30,7 +30,7 @@ class Screenshot(object):
     OFFSET_Y = 0
 
 
-class Sample:
+class Sample:  # FIXME aspect ratio
     IMG_W = 200
     IMG_H = 66
     IMG_D = 3
@@ -39,6 +39,7 @@ class Sample:
 class XboxController(object):
     MAX_TRIG_VAL = math.pow(2, 8)
     MAX_JOY_VAL = 255.0
+
     # MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self):
@@ -69,37 +70,39 @@ class XboxController(object):
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
-
     def read(self):
         x = self.LeftJoystickX
         y = self.LeftJoystickY
+        # print("y")
         a = self.A
+        # print(a)
         b = self.B
         z = self.Z
         rb = self.RightBumper
         return [x, y, a, b, z, rb]
-
 
     def _monitor_controller(self):
         while True:
             events = get_gamepad()
             for event in events:
                 if event.code == 'ABS_Y':
-                    self.LeftJoystickY = (2.* event.state / XboxController.MAX_JOY_VAL) - 1. # normalize and recenter between -1 and 1
+                    self.LeftJoystickY = (
+                                         2. * event.state / XboxController.MAX_JOY_VAL) - 1.  # normalize and recenter between -1 and 1
                     # print("y", self.LeftJoystickY)
                 elif event.code == 'ABS_X':
-                    self.LeftJoystickX = (2.* event.state / XboxController.MAX_JOY_VAL) - 1. # normalize between -1 and 1
+                    self.LeftJoystickX = (
+                                         2. * event.state / XboxController.MAX_JOY_VAL) - 1.  # normalize between -1 and 1
                     # print("x", self.LeftJoystickX)
-                elif event.code == 'ABS_Z':  #ABS_RY':
-                    self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RZ':  #'ABS_RX'
-                    self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'BTN_TOP2':#'ABS_Z':
+                elif event.code == 'ABS_Z':  # ABS_RY':
+                    self.RightJoystickY = event.state / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                elif event.code == 'ABS_RZ':  # 'ABS_RX'
+                    self.RightJoystickX = event.state / XboxController.MAX_JOY_VAL  # normalize between -1 and 1
+                elif event.code == 'BTN_TOP2':  # 'ABS_Z':
                     pass
-                elif event.code == 'BTN_PINKIE':#'ABS_RZ':
+                elif event.code == 'BTN_PINKIE':  # 'ABS_RZ':
                     self.RightBumper = event.state
                     # print("rb", event.state)
-                elif event.code == 'BTN_BASE':#'BTN_TL':
+                elif event.code == 'BTN_BASE':  # 'BTN_TL':
                     self.Z = event.state
                     # print("Z", event.state)
                 elif event.code == 'BTN_BASE2':
@@ -115,22 +118,22 @@ class XboxController(object):
                     # print(event.state)
                     self.B = event.state
                     # print("B", event.state)
-                elif event.code == 'BTN_THUMBL':  #thumb l
+                elif event.code == 'BTN_THUMBL':  # thumb l
                     self.LeftThumb = event.state
                 elif event.code == 'BTN_BASE5':  # thumb r
                     self.RightThumb = event.state
-                elif event.code == 'BTN_BASE6':  #select
+                elif event.code == 'BTN_BASE6':  # select
                     self.Back = event.state
-                elif event.code == 'BTN_BASE4':  #start
+                elif event.code == 'BTN_BASE4':  # start
                     self.Start = event.state
                 elif event.code == 'ABS_HAT0X':
-                    self.LeftDPad = event.state / XboxController.MAX_JOY_VAL # normalize
-                #elif event.code == 'ABS_HAT0X':
-                 #   self.RightDPad = event.state / XboxController.MAX_JOY_VAL # normalize
+                    self.LeftDPad = event.state / XboxController.MAX_JOY_VAL  # normalize
+                    # elif event.code == 'ABS_HAT0X':
+                    #   self.RightDPad = event.state / XboxController.MAX_JOY_VAL # normalize
                 elif event.code == 'ABS_HAT0Y':
-                    self.UpDPad = event.state / XboxController.MAX_JOY_VAL # normalize
-                #elif event.code == 'BTN_TRIGGER_HAPPY4':
-                 #   self.DownDPad = event.state
+                    self.UpDPad = event.state / XboxController.MAX_JOY_VAL  # normalize
+                    # elif event.code == 'BTN_TRIGGER_HAPPY4':
+                    #   self.DownDPad = event.state
 
 
 class Data(object):
@@ -160,8 +163,8 @@ class Data(object):
 
 
 def load_sample(sample):
-    image_files = np.loadtxt(sample + '/data.csv', delimiter=',', dtype=str, usecols=(0,))
-    joystick_values = np.loadtxt(sample + '/data.csv', delimiter=',', usecols=(1,2,3,4,5))
+    image_files = np.loadtxt(sample + '/data.csv', delimiter=',', dtype=str, usecols=(0,))  # 0 is screenshot name
+    joystick_values = np.loadtxt(sample + '/data.csv', delimiter=',', usecols=(1, 2, 3, 4, 5, 6))
     return image_files, joystick_values
 
 
@@ -177,10 +180,10 @@ def viewer(sample):
     for i in range(len(image_files)):
 
         # joystick
-        print(i, " ", joystick_values[i,:])
+        print(i, " ", joystick_values[i, :])
 
         # format data
-        plotData.append( joystick_values[i,:] )
+        plotData.append(joystick_values[i, :])
         if len(plotData) > 30:
             plotData.pop(0)
         x = np.asarray(plotData)
@@ -194,16 +197,16 @@ def viewer(sample):
 
         # plot
         plt.subplot(122)
-        plt.plot(range(i,i+len(plotData)), x[:,0], 'r')
+        plt.plot(range(i, i + len(plotData)), x[:, 0], 'r')
         plt.hold(True)
-        plt.plot(range(i,i+len(plotData)), x[:,1], 'b')
-        plt.plot(range(i,i+len(plotData)), x[:,2], 'g')
-        plt.plot(range(i,i+len(plotData)), x[:,3], 'k')
-        plt.plot(range(i,i+len(plotData)), x[:,4], 'y')
+        plt.plot(range(i, i + len(plotData)), x[:, 1], 'b')
+        plt.plot(range(i, i + len(plotData)), x[:, 2], 'g')
+        plt.plot(range(i, i + len(plotData)), x[:, 3], 'k')
+        plt.plot(range(i, i + len(plotData)), x[:, 4], 'y')
         plt.draw()
         plt.hold(False)
 
-        plt.pause(0.0001) # seconds
+        plt.pause(0.0001)  # seconds
         i += 1
 
 
